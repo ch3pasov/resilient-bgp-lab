@@ -1,0 +1,9 @@
+{
+  "name": "Resilient Radio Lab",
+  "image": "ghcr.io/srl-labs/containerlab/devcontainer-dind-slim:0.68.0",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
+  }
+}
