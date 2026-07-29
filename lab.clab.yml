@@ -1,0 +1,21 @@
+# Minimal Containerlab smoke test:
+# two Linux nodes connected by a point-to-point Ethernet link.
+
+name: first-lab
+
+topology:
+  nodes:
+    client:
+      kind: linux
+      image: alpine:3.20
+      cmd: sleep infinity
+
+    server:
+      kind: linux
+      image: alpine:3.20
+      cmd: sleep infinity
+
+  links:
+    - endpoints:
+        - client:eth1
+        - server:eth1
