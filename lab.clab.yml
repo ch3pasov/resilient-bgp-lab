@@ -1,7 +1,7 @@
-# Minimal Containerlab smoke test:
-# two Linux nodes connected by a point-to-point Ethernet link.
+# Minimal routed Containerlab topology:
+# two Linux hosts connected through one Linux router.
 
-name: first-lab
+name: routed-lab
 
 topology:
   nodes:
@@ -10,18 +10,36 @@ topology:
       image: alpine:3.20
       cmd: sleep infinity
       exec:
-        - ip address add 10.0.0.1/30 dev eth1
+        - ip address add 10.0.1.2/30 dev eth1
         - ip link set eth1 up
+        - ip route add 10.0.2.0/30 via 10.0.1.1
+
+    router:
+      kind: linux
+      image: alpine:3.20
+      cmd: sleep infinity
+      sysctls:
+        net.ipv4.ip_forward: "1"
+      exec:
+        - ip address add 10.0.1.1/30 dev eth1
+        - ip address add 10.0.2.1/30 dev eth2
+        - ip link set eth1 up
+        - ip link set eth2 up
 
     server:
       kind: linux
       image: alpine:3.20
       cmd: sleep infinity
       exec:
-        - ip address add 10.0.0.2/30 dev eth1
+        - ip address add 10.0.2.2/30 dev eth1
         - ip link set eth1 up
+        - ip route add 10.0.1.0/30 via 10.0.2.1
 
   links:
     - endpoints:
         - client:eth1
+        - router:eth1
+
+    - endpoints:
+        - router:eth2
         - server:eth1
