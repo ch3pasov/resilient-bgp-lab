@@ -26,6 +26,23 @@ The Linux router forwards packets between the two networks.
 
 The repository includes a development container configuration suitable for GitHub Codespaces.
 
+## Quick start
+
+Deploy the topology and run all connectivity and failure tests:
+
+```bash
+make demo
+```
+
+Run individual operations:
+
+```bash
+make deploy
+make check
+make test
+make destroy
+```
+
 ## Deploy the lab
 
 ```bash
