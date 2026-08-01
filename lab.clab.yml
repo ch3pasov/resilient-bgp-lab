@@ -1,7 +1,4 @@
-# Minimal routed Containerlab topology:
-# two Linux hosts connected through one Linux router.
-
-name: routed-lab
+name: redundant-lab
 
 topology:
   nodes:
@@ -10,11 +7,13 @@ topology:
       image: alpine:3.20
       cmd: sleep infinity
       exec:
+        - ip address add 192.168.0.1/32 dev lo
         - ip address add 10.0.1.2/30 dev eth1
+        - ip address add 10.0.3.2/30 dev eth3
         - ip link set eth1 up
-        - ip route add 10.0.2.0/30 via 10.0.1.1
+        - ip link set eth3 up
 
-    router:
+    router-a:
       kind: linux
       image: alpine:3.20
       cmd: sleep infinity
@@ -26,20 +25,42 @@ topology:
         - ip link set eth1 up
         - ip link set eth2 up
 
+    router-b:
+      kind: linux
+      image: alpine:3.20
+      cmd: sleep infinity
+      sysctls:
+        net.ipv4.ip_forward: "1"
+      exec:
+        - ip address add 10.0.3.1/30 dev eth3
+        - ip address add 10.0.4.1/30 dev eth4
+        - ip link set eth3 up
+        - ip link set eth4 up
+
     server:
       kind: linux
       image: alpine:3.20
       cmd: sleep infinity
       exec:
-        - ip address add 10.0.2.2/30 dev eth1
-        - ip link set eth1 up
-        - ip route add 10.0.1.0/30 via 10.0.2.1
+        - ip address add 192.168.0.2/32 dev lo
+        - ip address add 10.0.2.2/30 dev eth2
+        - ip address add 10.0.4.2/30 dev eth4
+        - ip link set eth2 up
+        - ip link set eth4 up
 
   links:
     - endpoints:
         - client:eth1
-        - router:eth1
+        - router-a:eth1
 
     - endpoints:
-        - router:eth2
-        - server:eth1
+        - router-a:eth2
+        - server:eth2
+
+    - endpoints:
+        - client:eth3
+        - router-b:eth3
+
+    - endpoints:
+        - router-b:eth4
+        - server:eth4
