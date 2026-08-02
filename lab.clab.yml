@@ -4,49 +4,43 @@ topology:
   nodes:
     client:
       kind: linux
-      image: alpine:3.20
-      cmd: sleep infinity
-      exec:
-        - ip address add 192.168.0.1/32 dev lo
-        - ip address add 10.0.1.2/30 dev eth1
-        - ip address add 10.0.3.2/30 dev eth3
-        - ip link set eth1 up
-        - ip link set eth3 up
+      image: quay.io/frrouting/frr:10.7.0
+      binds:
+        - configs/client.conf:/etc/frr/frr.conf
+        - configs/daemons:/etc/frr/daemons
+        - configs/vtysh.conf:/etc/frr/vtysh.conf
+      sysctls:
+        net.ipv4.ip_forward: "1"
 
     router-a:
       kind: linux
-      image: alpine:3.20
-      cmd: sleep infinity
+      image: quay.io/frrouting/frr:10.7.0
+      binds:
+        - configs/router-a.conf:/etc/frr/frr.conf
+        - configs/daemons:/etc/frr/daemons
+        - configs/vtysh.conf:/etc/frr/vtysh.conf
       sysctls:
         net.ipv4.ip_forward: "1"
-      exec:
-        - ip address add 10.0.1.1/30 dev eth1
-        - ip address add 10.0.2.1/30 dev eth2
-        - ip link set eth1 up
-        - ip link set eth2 up
 
     router-b:
       kind: linux
-      image: alpine:3.20
-      cmd: sleep infinity
+      image: quay.io/frrouting/frr:10.7.0
+      binds:
+        - configs/router-b.conf:/etc/frr/frr.conf
+        - configs/daemons:/etc/frr/daemons
+        - configs/vtysh.conf:/etc/frr/vtysh.conf
       sysctls:
         net.ipv4.ip_forward: "1"
-      exec:
-        - ip address add 10.0.3.1/30 dev eth3
-        - ip address add 10.0.4.1/30 dev eth4
-        - ip link set eth3 up
-        - ip link set eth4 up
 
     server:
       kind: linux
-      image: alpine:3.20
-      cmd: sleep infinity
-      exec:
-        - ip address add 192.168.0.2/32 dev lo
-        - ip address add 10.0.2.2/30 dev eth2
-        - ip address add 10.0.4.2/30 dev eth4
-        - ip link set eth2 up
-        - ip link set eth4 up
+      image: quay.io/frrouting/frr:10.7.0
+      binds:
+        - configs/server.conf:/etc/frr/frr.conf
+        - configs/daemons:/etc/frr/daemons
+        - configs/vtysh.conf:/etc/frr/vtysh.conf
+      sysctls:
+        net.ipv4.ip_forward: "1"
 
   links:
     - endpoints:
