@@ -4,8 +4,8 @@ import subprocess
 import sys
 
 
-CLIENT_CONTAINER = "clab-routed-lab-client"
-SERVER_IP = "10.0.2.2"
+CLIENT_CONTAINER = "clab-redundant-lab-client"
+SERVER_IP = "192.168.0.2"
 
 
 def check_connectivity() -> bool:
