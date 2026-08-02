@@ -1,44 +1,50 @@
 #!/usr/bin/env python3
 
 import subprocess
-import sys
+import time
 
-
-CLIENT_CONTAINER = "clab-redundant-lab-client"
+CLIENT = "clab-redundant-lab-client"
 SERVER_IP = "192.168.0.2"
 
+TIMEOUT_SECONDS = 15
+POLL_INTERVAL_SECONDS = 1
 
-def check_connectivity() -> bool:
-    command = [
-        "docker",
-        "exec",
-        CLIENT_CONTAINER,
-        "ping",
-        "-c",
-        "1",
-        "-W",
-        "1",
-        SERVER_IP,
-    ]
 
+def has_connectivity() -> bool:
     result = subprocess.run(
-        command,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        [
+            "docker",
+            "exec",
+            CLIENT,
+            "ping",
+            "-c",
+            "1",
+            "-W",
+            "1",
+            SERVER_IP,
+        ],
+        capture_output=True,
+        text=True,
         check=False,
     )
-
     return result.returncode == 0
 
 
 def main() -> int:
-    if check_connectivity():
-        print(f"OK: {CLIENT_CONTAINER} can reach {SERVER_IP}")
-        return 0
+    print(f"Checking connectivity to {SERVER_IP}")
 
-    print(f"FAIL: {CLIENT_CONTAINER} cannot reach {SERVER_IP}")
+    deadline = time.monotonic() + TIMEOUT_SECONDS
+
+    while time.monotonic() < deadline:
+        if has_connectivity():
+            print("PASS: server is reachable over the BGP fabric")
+            return 0
+
+        time.sleep(POLL_INTERVAL_SECONDS)
+
+    print("FAIL: server did not become reachable")
     return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())
