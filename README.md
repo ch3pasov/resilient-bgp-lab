@@ -67,6 +67,19 @@ verifies the final healthy state.
 The test checks both end-to-end connectivity and the actual next hop
 installed in the Linux routing table after BGP convergence.
 
+## Offline unit tests
+
+Route-selection checks run with Python's standard library and synthetic route
+output, without Docker, Containerlab, network access or changing any interfaces:
+
+```bash
+make test-unit
+```
+
+They require an exact next-hop address, so `10.0.1.10` cannot satisfy an expected
+gateway of `10.0.1.1`. The live `make test` command above still performs fault
+injection and is separate from these offline checks.
+
 ## Key concepts demonstrated
 
 - eBGP neighbor establishment

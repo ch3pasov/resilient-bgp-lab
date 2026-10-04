@@ -94,7 +94,11 @@ def wait_for_next_hop(expected_next_hop: str) -> bool:
     deadline = time.monotonic() + TIMEOUT_SECONDS
 
     while time.monotonic() < deadline:
-        if f"via {expected_next_hop}" in get_route():
+        route_parts = get_route().split()
+        if any(
+            keyword == "via" and address == expected_next_hop
+            for keyword, address in zip(route_parts, route_parts[1:])
+        ):
             return True
         time.sleep(POLL_INTERVAL_SECONDS)
 
